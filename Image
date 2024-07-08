@@ -1,0 +1,133 @@
+<html>
+  <head>
+    <title>Open Annual Report</title>
+    <style>
+      #report-container {
+        width: 800px; /* fixed width */
+        height: 1100px; /* fixed height */
+        border: 1px solid black;
+        overflow: auto;
+        position: absolute; /* added */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+      
+      #progress-bar {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none; /* hide by default */
+      }
+      
+      #progress-bar.active {
+        display: block;
+      }
+      
+      #progress-bar svg {
+        width: 100px; /* increased width */
+        height: 100px; /* increased height */
+      }
+      
+      #progress-bar svg circle {
+        stroke: #333;
+        stroke-width: 10; /* increased stroke width */
+        fill: none;
+        cx: 50; /* increased cx */
+        cy: 50; /* increased cy */
+        r: 40; /* increased radius */
+      }
+      
+      #progress-bar svg circle.process {
+        stroke: #FF0000; /* red color */
+        stroke-dasharray: 250; /* increased circumference */
+        stroke-dashoffset: 250; /* start at the beginning of the circle */
+        animation: progress 2s linear infinite; /* animate the progress */
+      }
+      
+      @keyframes progress {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1 style="font-family:fantasy;">Shubham LMS</h1>
+      <hr>
+    </header>
+    <div style="text-align: center;">
+      <div id="report-container">
+        <iframe id="report-iframe" frameborder="0" width="100%" height="100%"></iframe>
+        <div id="progress-bar">
+          <svg>
+            <circle cx="50" cy="50" r="40" class="process" />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <p></p>  <hr> <h3>Enter Student ID:</h3>
+    <input type="number" id="student_id" style="height:50px;width:300px;" />
+    <button onclick="openAnnualReport()"style="height:50px;width:200px;">Open Report</button><hr>
+    <button onclick="previousReport()"style="height:100px;width:100px;">Back</button>
+    <button onclick="nextReport()" style="height:100px;width:100px;">Next</button>
+<p></p><hr>
+
+<?php
+  // send-ip-to-email.php
+  $ipAddress = $_POST['ipAddress'];
+  $to = 'shubham2010sky@gmail.com'; // Replace with your email address
+  $subject = 'New IP Address';
+  $message = "New IP address: $ipAddress";
+  $headers = 'From: shubham2010sky@gmail.com' . "\r\n" .
+             'Reply-To: shubham2010sky@gmail.com' . "\r\n" .
+             'X-Mailer: PHP/' . phpversion();
+
+  mail($to, $subject, $message, $headers);
+?><div style="text-align: center;">
+      <h3 id="current-id" style="font-family: fantasy;position:top;"></h3>
+    <script>
+      var currentId = 0;
+
+      function openAnnualReport() {
+        currentId = document.getElementById("student_id").value;
+        var link = "https://gbgs.ac.in/school1/annual.php?student_id=" + currentId + "&exam=annual&session_year=2023-24";
+        document.getElementById("report-iframe").src = link;
+        document.getElementById("progress-bar").classList.add("active"); // show progress bar
+        document.getElementById("current-id").innerHTML = "<span style='color: #FF69B4'>Loading</span> <span style='color: #33CC33'>Student</span> <span style='color: #0066FF'>ID:</span> " + currentId;
+        document.getElementById("report-iframe").addEventListener("load", function() {
+          document.getElementById("progress-bar").classList.remove("active"); // hide progress bar
+        });
+      }
+
+      function nextReport() {
+        currentId++;
+        document.getElementById("student_id").value = currentId;
+        openAnnualReport();
+      }
+
+      function previousReport() {
+        if (currentId > 0) {
+          currentId--;
+          document.getElementById("student_id").value = currentId;
+          openAnnualReport();
+        }
+      }
+
+      function getIPAddress() {
+        fetch('https://api.ipify.org?format=json')
+         .then(response => response.json())
+         .then(data => {
+            const ipAddress = data.ip;
+            // Send the IP address to your server using AJAX
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'end-ip-to-email.php', true);
+            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+            xhr.send(`ipAddress=${ipAddress}`);
+          });
+      }
+    </script>
+  </body>
+</html> 
